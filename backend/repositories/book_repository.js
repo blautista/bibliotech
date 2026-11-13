@@ -73,6 +73,21 @@
          await db.execute('CALL sp_delete_book(?, ?)', [id, userId]);
          return true;
      }
+
+     /**
+      * @brief Actualiza los metadatos de un documento sin modificar su archivo físico.
+      * @param {number} id - ID del libro.
+      * @param {number} userId - ID del usuario activo (propietario esperado).
+      * @param {Object} bookData - DTO con los nuevos metadatos (title, author, category, pages).
+      * @returns {Promise<boolean>} Retorna true si la ejecución del SP finalizó sin excepciones.
+      */
+     async update(id, userId, bookData)
+     {
+         const { title, author, category, pages } = bookData;
+         await db.execute('CALL sp_update_book_metadata(?, ?, ?, ?, ?, ?)',
+             [id, userId, title, author, category, pages]);
+         return true;
+     }
  }
  
  module.exports = new BookRepository();

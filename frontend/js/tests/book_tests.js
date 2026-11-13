@@ -68,11 +68,52 @@
          headers: { 'Authorization': `Bearer ${token}` },
          body: formData
      });
- 
+
      const data = await response.json();
      testUtils.log(data);
-     
-     if (response.ok) 
+
+     if (response.ok)
+     {
+         testUtils.setSuccess(btn);
+     }
+ });
+
+ // 3. Editar Metadatos (PUT protegido)
+ testUtils.createTestButton("Test Editar Metadatos", async (btn) =>
+ {
+     await okLogin();
+     const token = localStorage.getItem('test_token');
+
+     // Pre-condición: se edita el primer libro del usuario (ejecutar antes "Test Subir Libro PDF")
+     const listResponse = await fetch('/api/books/my-books', {
+         headers: { 'Authorization': `Bearer ${token}` }
+     });
+     const books = await listResponse.json();
+
+     if (books.length === 0)
+     {
+         testUtils.log({ message: 'No hay libros para editar. Ejecute primero el test de subida.' });
+         return;
+     }
+
+     const response = await fetch(`/api/books/${books[0].id}`, {
+         method: 'PUT',
+         headers: {
+             'Content-Type': 'application/json',
+             'Authorization': `Bearer ${token}`
+         },
+         body: JSON.stringify({
+             title: 'Don Quijote (Edición Revisada)',
+             author: 'Miguel de Cervantes Saavedra',
+             category: 'Novela',
+             pages: 900
+         })
+     });
+
+     const data = await response.json();
+     testUtils.log(data);
+
+     if (response.ok)
      {
          testUtils.setSuccess(btn);
      }

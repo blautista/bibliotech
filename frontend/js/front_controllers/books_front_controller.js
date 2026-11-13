@@ -68,6 +68,15 @@
          tdReading.appendChild(linkDownload);
  
          const tdActions = document.createElement('td');
+         const btnEdit = document.createElement('button');
+         btnEdit.className = 'w3-button w3-amber w3-tiny w3-round w3-margin-right';
+         btnEdit.textContent = 'Editar';
+         btnEdit.addEventListener('click', () =>
+         {
+             showEditBookModal(b, (data) => updateBook(b.id, data));
+         });
+         tdActions.appendChild(btnEdit);
+
          const btnDelete = document.createElement('button');
          btnDelete.className = 'w3-button w3-red w3-tiny w3-round';
          btnDelete.textContent = 'Borrar';
@@ -100,7 +109,27 @@
          showModal('Error', error.message);
      }
  }
- 
+
+ /**
+  * @brief Envía los metadatos editados al backend y refresca el listado.
+  * @param {number} id - ID del libro a modificar.
+  * @param {Object} data - Metadatos actualizados (title, author, category, pages).
+  * @note Se envía JSON (no FormData) porque la edición no incluye el archivo PDF.
+  */
+ async function updateBook(id, data)
+ {
+     try
+     {
+         const result = await apiService.request(`/books/${id}`, 'PUT', data);
+         showModal('Actualizado', result.message);
+         loadBooks();
+     }
+     catch (error)
+     {
+         showModal('Error', error.message);
+     }
+ }
+
  const uploadForm = document.getElementById('uploadForm');
  
  if (uploadForm) 
