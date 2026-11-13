@@ -112,6 +112,46 @@
              next(error);
          }
      }
+
+     /**
+      * @brief Edita los metadatos de un documento validando previamente la propiedad del mismo.
+      * @param {Object} req - Petición HTTP (JSON con title, author, category y pages).
+      * @param {Object} res - Respuesta HTTP.
+      * @param {Function} next - Función para delegar errores.
+      */
+     async updateBook(req, res, next)
+     {
+         try
+         {
+             const { id } = req.params;
+             const userId = req.userId;
+             const { title, author, category, pages } = req.body;
+
+             // Validar propiedad: el SP ignora en silencio los libros ajenos, por eso se verifica antes
+             const book = await bookRepository.findById(id, userId);
+
+             if (!book)
+             {
+                 const message = i18n.getMessage('CT_BOOK_NOT_FOUND');
+                 return res.status(404).json({ message });
+             }
+
+             // Actualizar metadatos mediante Stored Procedure (el archivo físico no se modifica)
+             await bookRepository.update(id, userId, {
+                 title,
+                 author,
+                 category,
+                 pages: parseInt(pages) || 0
+             });
+
+             const message = i18n.getMessage('CT_BOOK_UPDATE_SUCCESS');
+             res.json({ message });
+         }
+         catch (error)
+         {
+             next(error);
+         }
+     }
  }
  
  module.exports = new BookController();
