@@ -117,6 +117,34 @@
              }
              return res.status(400).json({ message: error.message });
          }
+     },
+
+     /**
+      * @brief Valida los metadatos enviados para editar un libro existente.
+      * @param {Object} req - Petición HTTP (req.body en formato JSON, sin archivo adjunto).
+      * @param {Object} res - Objeto de respuesta HTTP.
+      * @param {Function} next - Función de delegación de Express.
+      * @note A diferencia de validateBookUpload, no se exige req.file ni se realiza rollback
+      * de archivo, ya que la edición solo modifica metadatos y nunca reemplaza el PDF.
+      */
+     validateBookUpdate: (req, res, next) =>
+     {
+         const validator = new Validator();
+         const { title, author, category, pages } = req.body;
+
+         try
+         {
+             validator.validateThis(title).with(new Required("CT_REQ_TITLE"));
+             validator.validateThis(author).with(new Required("CT_REQ_AUTHOR"));
+             validator.validateThis(category).with(new Required("CT_REQ_CATEGORY"));
+             validator.validateThis(pages).with(new PositiveNumber("CT_PAGES_POSITIVE"));
+
+             next();
+         }
+         catch (error)
+         {
+             return res.status(400).json({ message: error.message });
+         }
      }
  };
  
