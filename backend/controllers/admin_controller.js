@@ -75,7 +75,7 @@
              userBooks.forEach(book => {fileHelper.deleteFile(book.file_path);});
  
              // Auditoría asincrónica (fire-and-forget): sin await para no demorar la respuesta, y con .catch para que un fallo del log no rompa la petición
-             auditRepository.create({ user_id: adminId, action: 'DELETE_USER', target: `user:${targetUserId}`, ip_address: req.ip })
+             auditRepository.create({ user_id: adminId, action: 'DELETE_USER', target: 'user', target_id: targetUserId, ip_address: req.ip })
                  .catch(error => console.error(`❌ Error al registrar auditoría: ${error.message}`));
  
              // Reemplazo dinámico (%s) para mostrar la cantidad de archivos borrados

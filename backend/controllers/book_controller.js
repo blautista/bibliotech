@@ -106,7 +106,7 @@
              fileHelper.deleteFile(book.file_path); 
              
              // Auditoría asincrónica (fire-and-forget): sin await para no demorar la respuesta, y con .catch para que un fallo del log no rompa la petición
-             auditRepository.create({ user_id: userId, action: 'DELETE_BOOK', target: `book:${id}`, ip_address: req.ip })
+             auditRepository.create({ user_id: userId, action: 'DELETE_BOOK', target: 'book', target_id: id, ip_address: req.ip })
                  .catch(error => console.error(`❌ Error al registrar auditoría: ${error.message}`));
              
              const message = i18n.getMessage('CT_BOOK_DELETED_SUCCESS');

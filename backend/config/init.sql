@@ -88,14 +88,18 @@ CREATE TABLE books (
  * destruiría la evidencia de lo que hizo; con RESTRICT, no se podría borrar a
  * nadie con historial. El log debe sobrevivir al actor.
  * ip_address VARCHAR(45) admite IPv6 completas e IPv4 mapeadas (::ffff:127.0.0.1).
+ * El recurso afectado se separa en target ('book', 'user') y target_id para
+ * poder filtrar e indexar por id numérico en vez de parsear un string 'book:5'.
  */
 CREATE TABLE audit_logs (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT,
     action VARCHAR(50) NOT NULL,
-    target VARCHAR(255),
+    target VARCHAR(50),
+    target_id INT,
     ip_address VARCHAR(45),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_audit_target (target, target_id)
 );
 
 -- 7. Inserción de Roles Maestros
@@ -257,12 +261,13 @@ END //
 CREATE PROCEDURE sp_create_audit_log(
     IN p_user_id INT,
     IN p_action VARCHAR(50),
-    IN p_target VARCHAR(255),
+    IN p_target VARCHAR(50),
+    IN p_target_id INT,
     IN p_ip_address VARCHAR(45)
 )
 BEGIN
-    INSERT INTO audit_logs (user_id, action, target, ip_address)
-    VALUES (p_user_id, p_action, p_target, p_ip_address);
+    INSERT INTO audit_logs (user_id, action, target, target_id, ip_address)
+    VALUES (p_user_id, p_action, p_target, p_target_id, p_ip_address);
     SELECT LAST_INSERT_ID() as insertId;
 END //
 

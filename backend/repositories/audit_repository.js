@@ -22,7 +22,7 @@
  {
      /**
       * @brief Persiste una nueva entrada en el registro de auditoría.
-      * @param {Object} logData - DTO con user_id (actor), action (ej: DELETE_BOOK), target (ej: book:5) e ip_address.
+      * @param {Object} logData - DTO con user_id (actor), action (ej: DELETE_BOOK), target (ej: book), target_id e ip_address.
       * @returns {Promise<number>} Retorna el ID (Primary Key) del registro insertado.
       *
       * @note Este método no atrapa sus propios errores: igual que el resto de los repositorios,
@@ -30,9 +30,9 @@
       */
      async create(logData)
      {
-         const { user_id, action, target, ip_address } = logData;
-         const [rows] = await db.execute('CALL sp_create_audit_log(?, ?, ?, ?)',
-             [user_id, action, target, ip_address]);
+         const { user_id, action, target, target_id, ip_address } = logData;
+         const [rows] = await db.execute('CALL sp_create_audit_log(?, ?, ?, ?, ?)',
+             [user_id, action, target, target_id, ip_address]);
 
          return rows[0][0].insertId;
      }
