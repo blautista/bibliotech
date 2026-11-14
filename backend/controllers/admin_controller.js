@@ -9,6 +9,7 @@
 
  const userRepository = require('../repositories/user_repository');
  const bookRepository = require('../repositories/book_repository');
+ const auditRepository = require('../repositories/audit_repository');
  const fileHelper = require('../utils/file_helper/file_helper');
  const i18n = require('../utils/i18n/i18n'); // Inyección del gestor de idiomas
  
@@ -72,6 +73,10 @@
  
              // Limpieza física: Eliminar almacenamiento en disco
              userBooks.forEach(book => {fileHelper.deleteFile(book.file_path);});
+ 
+             // Auditoría asincrónica (fire-and-forget): sin await para no demorar la respuesta, y con .catch para que un fallo del log no rompa la petición
+             auditRepository.create({ user_id: adminId, action: 'DELETE_USER', target: 'user', target_id: targetUserId, ip_address: req.ip })
+                 .catch(error => console.error(`❌ Error al registrar auditoría: ${error.message}`));
  
              // Reemplazo dinámico (%s) para mostrar la cantidad de archivos borrados
              const message = i18n.getMessage('CT_ADMIN_USER_DELETED').replace('%s', userBooks.length);

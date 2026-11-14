@@ -9,6 +9,7 @@
 
  const fileHelper = require('../utils/file_helper/file_helper');
  const bookRepository = require('../repositories/book_repository');
+ const auditRepository = require('../repositories/audit_repository');
  const i18n = require('../utils/i18n/i18n'); // Inyección del gestor de idiomas
  
  /**
@@ -104,6 +105,10 @@
              // Eliminar archivo físico en disco de forma síncrona
              fileHelper.deleteFile(book.file_path); 
              
+             // Auditoría asincrónica (fire-and-forget): sin await para no demorar la respuesta, y con .catch para que un fallo del log no rompa la petición
+             auditRepository.create({ user_id: userId, action: 'DELETE_BOOK', target: 'book', target_id: id, ip_address: req.ip })
+                 .catch(error => console.error(`❌ Error al registrar auditoría: ${error.message}`));
+             
              const message = i18n.getMessage('CT_BOOK_DELETED_SUCCESS');
              res.json({ message });
          }
@@ -143,6 +148,10 @@
                  category,
                  pages: parseInt(pages) || 0
              });
+
+             // Auditoría asincrónica (fire-and-forget): sin await para no demorar la respuesta, y con .catch para que un fallo del log no rompa la petición
+             auditRepository.create({ user_id: userId, action: 'UPDATE_BOOK', target: 'book', target_id: id, ip_address: req.ip })
+                 .catch(error => console.error(`❌ Error al registrar auditoría: ${error.message}`));
 
              const message = i18n.getMessage('CT_BOOK_UPDATE_SUCCESS');
              res.json({ message });
