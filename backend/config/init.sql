@@ -81,6 +81,23 @@ CREATE TABLE books (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
+/*
+ * @brief 6.1 Tabla de Auditoría (Accounting)
+ * @details Registro persistente de acciones críticas para análisis forense.
+ * @note Sin FK a users a propósito: con ON DELETE CASCADE, borrar un usuario
+ * destruiría la evidencia de lo que hizo; con RESTRICT, no se podría borrar a
+ * nadie con historial. El log debe sobrevivir al actor.
+ * ip_address VARCHAR(45) admite IPv6 completas e IPv4 mapeadas (::ffff:127.0.0.1).
+ */
+CREATE TABLE audit_logs (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
+    action VARCHAR(50) NOT NULL,
+    target VARCHAR(255),
+    ip_address VARCHAR(45),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- 7. Inserción de Roles Maestros
 INSERT INTO roles (name) VALUES ('admin'), ('client');
 
@@ -228,6 +245,25 @@ BEGIN
         category = p_category,
         pages = p_pages
     WHERE id = p_id AND user_id = p_user_id;
+END //
+
+-- --- PROCEDIMIENTOS PARA AUDIT_LOGS ---
+
+/*
+ * @brief Registra una acción crítica en la tabla de auditoría.
+ * @note El INSERT vive en el SP porque el usuario 'bibliotech' no tiene permiso
+ * INSERT directo (PoLP): solo puede dejar registros a través de este procedimiento.
+ */
+CREATE PROCEDURE sp_create_audit_log(
+    IN p_user_id INT,
+    IN p_action VARCHAR(50),
+    IN p_target VARCHAR(255),
+    IN p_ip_address VARCHAR(45)
+)
+BEGIN
+    INSERT INTO audit_logs (user_id, action, target, ip_address)
+    VALUES (p_user_id, p_action, p_target, p_ip_address);
+    SELECT LAST_INSERT_ID() as insertId;
 END //
 
 DELIMITER ;
