@@ -31,9 +31,9 @@
       */
      async create(bookData) 
      {
-         const { user_id, filename, title, author, category, pages, file_path } = bookData;
+         const { user_id, filename, title, author, category_id, pages, file_path } = bookData;
          const [rows] = await db.execute('CALL sp_create_book(?, ?, ?, ?, ?, ?, ?)',
-             [user_id, filename, title, author, category, pages, file_path]);
+             [user_id, filename, title, author, category_id, pages, file_path]);
              
          // Los Stored Procedures de inserción fueron diseñados para devolver LAST_INSERT_ID()
          return rows[0][0].insertId;
@@ -78,14 +78,14 @@
       * @brief Actualiza los metadatos de un documento sin modificar su archivo físico.
       * @param {number} id - ID del libro.
       * @param {number} userId - ID del usuario activo (propietario esperado).
-      * @param {Object} bookData - DTO con los nuevos metadatos (title, author, category, pages).
+      * @param {Object} bookData - DTO con los nuevos metadatos (title, author, category_id, pages).
       * @returns {Promise<boolean>} Retorna true si la ejecución del SP finalizó sin excepciones.
       */
      async update(id, userId, bookData)
      {
-         const { title, author, category, pages } = bookData;
+         const { title, author, category_id, pages } = bookData;
          await db.execute('CALL sp_update_book_metadata(?, ?, ?, ?, ?, ?)',
-             [id, userId, title, author, category, pages]);
+             [id, userId, title, author, category_id, pages]);
          return true;
      }
  }

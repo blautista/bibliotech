@@ -28,7 +28,7 @@
      {
          try 
          {
-             const { title, author, category, pages } = req.body;
+             const { title, author, category_id, pages } = req.body;
              const userId = req.userId;
              const filename = req.file.filename;
              const filePath = `/uploads/${filename}`;
@@ -39,7 +39,7 @@
                  filename,
                  title,
                  author,
-                 category,
+                 category_id: parseInt(category_id),
                  pages: parseInt(pages) || 0,
                  file_path: filePath
              });
@@ -120,7 +120,7 @@
 
      /**
       * @brief Edita los metadatos de un documento validando previamente la propiedad del mismo.
-      * @param {Object} req - Petición HTTP (JSON con title, author, category y pages).
+      * @param {Object} req - Petición HTTP (JSON con title, author, category_id y pages).
       * @param {Object} res - Respuesta HTTP.
       * @param {Function} next - Función para delegar errores.
       */
@@ -130,7 +130,7 @@
          {
              const { id } = req.params;
              const userId = req.userId;
-             const { title, author, category, pages } = req.body;
+             const { title, author, category_id, pages } = req.body;
 
              // Validar propiedad: el SP ignora en silencio los libros ajenos, por eso se verifica antes
              const book = await bookRepository.findById(id, userId);
@@ -145,7 +145,7 @@
              await bookRepository.update(id, userId, {
                  title,
                  author,
-                 category,
+                 category_id: parseInt(category_id),
                  pages: parseInt(pages) || 0
              });
 

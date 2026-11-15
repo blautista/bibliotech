@@ -140,7 +140,7 @@
   * @brief Muestra una ventana modal con un formulario para editar los metadatos de un documento.
   * @details El modal solo construye la interfaz y recolecta los datos; la petición HTTP queda
   * a cargo del controlador frontend mediante el callback onSave (Separación de Responsabilidades).
-  * @param {Object} book - Libro a editar (title, author, category, pages).
+  * @param {Object} book - Libro a editar (title, author, category_id, pages).
   * @param {Function} onSave - Callback que recibe el objeto con los metadatos actualizados.
   */
  function showEditBookModal(book, onSave)
@@ -242,7 +242,7 @@
 
      document.getElementById('editTitle').value = book.title;
      document.getElementById('editAuthor').value = book.author;
-     selectCategory.value = book.category;
+     selectCategory.value = book.category_id;
      document.getElementById('editPages').value = book.pages;
 
      /**
@@ -256,7 +256,7 @@
          onSave({
              title: document.getElementById('editTitle').value,
              author: document.getElementById('editAuthor').value,
-             category: selectCategory.value,
+             category_id: selectCategory.value,
              pages: document.getElementById('editPages').value
          });
      };

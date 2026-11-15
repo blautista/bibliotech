@@ -18,6 +18,7 @@
  const Required = require('../utils/validator/rules/required');
  const MinLength = require('../utils/validator/rules/min_length');
  const PositiveNumber = require('../utils/validator/rules/positive_number');
+ const PositiveInteger = require('../utils/validator/rules/positive_integer');
  const fileHelper = require('../utils/file_helper/file_helper');
  
  const validationMiddleware = {
@@ -86,7 +87,7 @@
      validateBookUpload: (req, res, next) => 
      {
          const validator = new Validator();
-         const { title, author, category, pages } = req.body;
+         const { title, author, category_id, pages } = req.body;
  
          try 
          {
@@ -99,7 +100,10 @@
  
              validator.validateThis(title).with(new Required("CT_REQ_TITLE"));
              validator.validateThis(author).with(new Required("CT_REQ_AUTHOR"));
-             validator.validateThis(category).with(new Required("CT_REQ_CATEGORY"));
+             // Solo se valida el formato: la existencia de la categoría la garantiza la FK en la base
+             validator.validateThis(category_id)
+                      .with(new Required("CT_REQ_CATEGORY"))
+                      .with(new PositiveInteger("CT_REQ_CATEGORY"));
              validator.validateThis(pages).with(new PositiveNumber("CT_PAGES_POSITIVE"));
  
              next();
@@ -130,13 +134,15 @@
      validateBookUpdate: (req, res, next) =>
      {
          const validator = new Validator();
-         const { title, author, category, pages } = req.body;
+         const { title, author, category_id, pages } = req.body;
 
          try
          {
              validator.validateThis(title).with(new Required("CT_REQ_TITLE"));
              validator.validateThis(author).with(new Required("CT_REQ_AUTHOR"));
-             validator.validateThis(category).with(new Required("CT_REQ_CATEGORY"));
+             validator.validateThis(category_id)
+                      .with(new Required("CT_REQ_CATEGORY"))
+                      .with(new PositiveInteger("CT_REQ_CATEGORY"));
              validator.validateThis(pages).with(new PositiveNumber("CT_PAGES_POSITIVE"));
 
              next();

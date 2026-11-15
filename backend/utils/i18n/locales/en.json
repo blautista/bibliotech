@@ -3,6 +3,7 @@
     "CT_INVALID_RESOURCE_CONSTANT": "Invalid language resource or missing key.",
     "CT_MYSQL_ER_DUP_ENTRY": "Username or entry is already registered in the system.",
     "CT_MYSQL_ECONNREFUSED": "Database service is temporarily unavailable.",
+    "CT_MYSQL_ER_NO_REFERENCED_ROW": "The referenced data (for example, the category) does not exist.",
     "CT_REQ_USERNAME": "Username is required.",
     "CT_REQ_PASSWORD": "Password is required.",
     "CT_PASS_TOO_SHORT": "Password must be at least 6 characters long.",
