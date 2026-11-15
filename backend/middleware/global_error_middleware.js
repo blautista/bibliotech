@@ -37,6 +37,13 @@
              return res.status(409).json({ message });
          }
  
+         // FK violada (ej: category_id inexistente): es un dato inválido del cliente, no una falla del servidor
+         if (err.code === 'ER_NO_REFERENCED_ROW_2') 
+         {
+             const message = i18n.getMessage('CT_MYSQL_ER_NO_REFERENCED_ROW');
+             return res.status(400).json({ message });
+         }
+ 
          if (err.code === 'ECONNREFUSED') 
          {
              const message = i18n.getMessage('CT_MYSQL_ECONNREFUSED');
