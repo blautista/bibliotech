@@ -51,7 +51,7 @@
      const formData = new FormData();
      formData.append('title', 'Don Quijote de la Mancha');
      formData.append('author', 'Miguel de Cervantes');
-     formData.append('category', 'Novela');
+     formData.append('category_id', '1');
      formData.append('pages', '862');
  
      /**
@@ -105,9 +105,28 @@
          body: JSON.stringify({
              title: 'Don Quijote (Edición Revisada)',
              author: 'Miguel de Cervantes Saavedra',
-             category: 'Novela',
+             category_id: 1,
              pages: 900
          })
+     });
+
+     const data = await response.json();
+     testUtils.log(data);
+
+     if (response.ok)
+     {
+         testUtils.setSuccess(btn);
+     }
+ });
+
+ // 4. Listar Categorías (GET protegido)
+ testUtils.createTestButton("Test Listar Categorías", async (btn) =>
+ {
+     await okLogin();
+     const token = localStorage.getItem('test_token');
+
+     const response = await fetch('/api/categories', {
+         headers: { 'Authorization': `Bearer ${token}` }
      });
 
      const data = await response.json();

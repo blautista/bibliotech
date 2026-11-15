@@ -8,6 +8,7 @@
  */
 
  document.addEventListener('DOMContentLoaded', loadBooks);
+ document.addEventListener('DOMContentLoaded', loadCategories);
 
  async function loadBooks() 
  {
@@ -113,7 +114,7 @@
  /**
   * @brief Envía los metadatos editados al backend y refresca el listado.
   * @param {number} id - ID del libro a modificar.
-  * @param {Object} data - Metadatos actualizados (title, author, category, pages).
+  * @param {Object} data - Metadatos actualizados (title, author, category_id, pages).
   * @note Se envía JSON (no FormData) porque la edición no incluye el archivo PDF.
   */
  async function updateBook(id, data)
@@ -128,6 +129,41 @@
      {
          showModal('Error', error.message);
      }
+ }
+
+ /**
+  * @brief Obtiene las categorías desde la API y puebla el <select> del formulario de carga.
+  * @note El modal de edición copia sus opciones de este mismo <select>, así que también queda dinámico.
+  */
+ async function loadCategories()
+ {
+     try
+     {
+         const categories = await apiService.request('/categories', 'GET');
+         renderCategoryOptions(categories);
+     }
+     catch (error)
+     {
+         showModal('Error', 'No se pudieron cargar las categorías: ' + error.message);
+     }
+ }
+
+ /**
+  * @brief Construye las <option> con createElement y textContent (política Zero-innerHTML).
+  * @param {Array} categories - Lista de categorías (id, name).
+  * @note value lleva el id (lo que espera la FK) y textContent el nombre visible.
+  */
+ function renderCategoryOptions(categories)
+ {
+     const select = document.getElementById('category');
+     const options = categories.map(c =>
+     {
+         const option = document.createElement('option');
+         option.value = c.id;
+         option.textContent = c.name;
+         return option;
+     });
+     select.replaceChildren(...options);
  }
 
  const uploadForm = document.getElementById('uploadForm');
@@ -152,7 +188,7 @@
         const formData = new FormData();
         formData.append('title', document.getElementById('title').value);
         formData.append('author', document.getElementById('author').value);
-        formData.append('category', document.getElementById('category').value);
+        formData.append('category_id', document.getElementById('category').value);
         formData.append('pages', document.getElementById('pages').value);
         
         // files[0] accede al binario crudo del archivo seleccionado en el input de tipo file
